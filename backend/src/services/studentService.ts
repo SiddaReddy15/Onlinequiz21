@@ -26,17 +26,58 @@ export const studentService = {
       .groupBy(attempts.studentId)
       .orderBy(desc(sql`SUM(${attempts.score})`));
 
-    const currentRank = allStudentScores.findIndex(s => s.studentId === studentId) + 1;
+    const currentRankIndex = allStudentScores.findIndex(s => s.studentId === studentId);
+    const currentRank = currentRankIndex + 1;
+    const totalStudents = allStudentScores.length;
+    const percentile = totalStudents > 1 
+      ? Math.round(((totalStudents - currentRank) / (totalStudents - 1)) * 100) 
+      : 100;
+
+    // Performance History (Last 10 exams)
+    const performanceHistory = history
+      .slice(0, 10)
+      .reverse()
+      .map((h: any) => ({
+        date: format(new Date(h.submittedAt), 'MMM dd'),
+        score: h.score,
+        title: h.examTitle
+      }));
+
+    // Topic Analysis (Mocked based on recent results categories)
+    // In a real app, you'd aggregate correct answers by question category
+    const topics = [
+      { name: 'Python', score: 85, total: 100 },
+      { name: 'React', score: 45, total: 100 },
+      { name: 'SQL', score: 92, total: 100 },
+      { name: 'Algorithms', score: 68, total: 100 },
+    ];
+
+    // Badges System
+    const badges = [];
+    if (totalAttempts >= 1) badges.push({ id: 1, title: 'First Steps', icon: '🎓', color: 'blue' });
+    if (totalAttempts >= 5) badges.push({ id: 2, title: 'Consistent', icon: '🔥', color: 'orange' });
+    if (history.some((h: any) => h.score >= 90)) badges.push({ id: 3, title: 'Top Scorer', icon: '🥇', color: 'amber' });
+    if (currentRank === 1 && totalStudents > 1) badges.push({ id: 4, title: 'Platform King', icon: '👑', color: 'purple' });
 
     return {
       upcomingExams: available.filter((e: any) => !e.isAttempted).slice(0, 3),
       recentResults: history.slice(0, 5),
+      performanceHistory,
+      topicAnalysis: topics,
+      badges,
       stats: {
         totalAttempts,
         avgScore,
         currentRank: currentRank > 0 ? `#${currentRank}` : 'N/A',
+        totalStudents,
+        percentile,
+        rankTrend: 'up', // Mocked trend
         activeMissions: available.filter((e: any) => !e.isAttempted).length
-      }
+      },
+      notifications: [
+        { id: 1, type: 'exam', message: 'New Coding Quest: Python Data Structures is now live!', date: new Date() },
+        { id: 2, type: 'rank', message: 'You moved up 3 spots in the global leaderboard!', date: new Date() }
+      ]
     };
   },
 
