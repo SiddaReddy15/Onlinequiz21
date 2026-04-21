@@ -81,6 +81,20 @@ const StudentDashboard = () => {
     </div>
   );
 
+  if (!data) return (
+    <div className="h-[60vh] flex flex-col items-center justify-center text-center">
+      <AlertCircle size={48} className="text-rose-500 mb-4" />
+      <h2 className="text-xl font-bold text-slate-900">Unable to load dashboard</h2>
+      <p className="text-slate-500 mt-2">Please check your connection and try again.</p>
+      <button 
+        onClick={() => window.location.reload()}
+        className="mt-6 px-6 py-2 bg-sky-500 text-white rounded-xl font-bold hover:bg-sky-600 transition-all"
+      >
+        Retry Sync
+      </button>
+    </div>
+  );
+
   const { upcomingExams, recentResults, stats, performanceHistory, topicAnalysis, badges, notifications } = data;
 
   const quickActions = [
