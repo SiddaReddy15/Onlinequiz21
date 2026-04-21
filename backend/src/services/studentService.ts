@@ -3,6 +3,7 @@ import { users, exams, questions, attempts, answers } from '../db/schema';
 import { eq, and, sql, lt, gt, desc, asc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { AppError } from '../utils/errorHandler';
+import { format } from 'date-fns';
 
 export const studentService = {
   async getDashboardStats(studentId: string) {
