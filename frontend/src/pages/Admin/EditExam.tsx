@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
@@ -19,11 +19,7 @@ import {
   ChevronDown,
   ChevronUp,
   Settings,
-  Database,
-  ShieldCheck,
-  Zap,
-  MoreVertical,
-  GripVertical
+  Database
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';

@@ -1,21 +1,16 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/api';
 import { 
-  BarChart3, 
   Search, 
   Download, 
-  ArrowUpRight, 
   PieChart as PieIcon, 
   TrendingUp,
   Trophy,
-  Filter,
   CheckCircle2,
   Clock,
-  ChevronDown,
   X
 } from 'lucide-react';
-import { format, differenceInMinutes } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
+import { format } from 'date-fns';
 import { 
   ResponsiveContainer, 
   BarChart, 
@@ -36,7 +31,6 @@ const AdminResults = () => {
   const [results, setResults] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState<'all' | 'leaderboard'>('all');
 
   useEffect(() => {
@@ -50,8 +44,6 @@ const AdminResults = () => {
         setAnalytics(analyticsRes.data);
       } catch (error) {
         console.error('Failed to fetch data');
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchData();

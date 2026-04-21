@@ -4,12 +4,6 @@ import api from '../../services/api';
 import { toast } from 'react-hot-toast';
 import { 
   User, 
-  Mail, 
-  Lock, 
-  Shield, 
-  Bell, 
-  Globe, 
-  Moon, 
   Save,
   UserCircle,
   KeyRound,

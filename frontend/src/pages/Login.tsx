@@ -190,7 +190,7 @@ const Login = () => {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between px-1">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</label>
-                  <Link to="/forgot-password" size="sm" className="text-xs font-bold text-sky-600 hover:text-sky-700 transition-colors">
+                  <Link to="/forgot-password" className="text-xs font-bold text-sky-600 hover:text-sky-700 transition-colors">
                     Forgot?
                   </Link>
                 </div>

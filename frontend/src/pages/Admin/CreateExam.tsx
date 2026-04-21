@@ -4,24 +4,18 @@ import api from '../../services/api';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { 
-  Save, 
   Plus, 
-  Trash2, 
   ArrowLeft, 
   ArrowRight, 
   CheckCircle2, 
   Layout, 
-  FileText, 
   Zap, 
   Upload, 
-  Clock, 
-  Target,
   Code2,
   ListTodo,
   FileQuestion,
   ChevronDown,
   X,
-  PlusCircle,
   Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

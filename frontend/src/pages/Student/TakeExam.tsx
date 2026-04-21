@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
@@ -18,10 +18,11 @@ import {
   Settings,
   HelpCircle,
   FileCode,
-  Info
+  Info,
+  Target
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Editor from '@monaco-editor/react';
 
 const TakeExam = () => {
@@ -43,7 +44,7 @@ const TakeExam = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const [isInitializing, setIsInitializing] = useState(true);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<any>(null);
 
   // Initial Fetch (Exam Info & Session Recovery)
   useEffect(() => {
@@ -299,7 +300,6 @@ const TakeExam = () => {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const progress = ((currentQIndex + 1) / exam.questions.length) * 100;
 
   return (
     <div className="h-screen flex flex-col bg-[#0d1117] text-white overflow-hidden">

@@ -4,16 +4,13 @@ import {
   BookOpen, 
   Clock, 
   Calendar, 
-  ChevronRight, 
   Trophy, 
   TrendingUp, 
   AlertCircle, 
-  Loader2, 
   Target,
   Zap,
   Bell,
   Search,
-  User,
   ArrowUpRight
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -121,7 +118,7 @@ const StudentDashboard = () => {
 
           <div className="grid gap-6">
             <AnimatePresence mode="popLayout">
-              {upcomingExams.length > 0 ? upcomingExams.map((exam: any, i: number) => (
+              {upcomingExams.length > 0 ? upcomingExams.map((exam: any) => (
                 <motion.div
                   layout
                   initial={{ opacity: 0, scale: 0.95 }}

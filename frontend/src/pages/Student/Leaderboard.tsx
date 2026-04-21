@@ -3,20 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../../services/api';
 import { 
   Trophy, 
-  Medal, 
   ArrowLeft, 
   Timer, 
   User, 
-  Target, 
-  TrendingUp, 
   Search,
-  Star,
-  Award,
-  Zap,
-  Shield
+  Award
 } from 'lucide-react';
-import { clsx } from 'clsx';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 const Leaderboard = () => {

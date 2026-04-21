@@ -9,8 +9,6 @@ import {
   Plus, 
   Trash2, 
   Edit3, 
-  Filter, 
-  MoreVertical, 
   CheckCircle2, 
   Clock3, 
   AlertCircle,

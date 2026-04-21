@@ -13,7 +13,6 @@ import {
   ChevronDown, 
   ChevronUp, 
   Target, 
-  Clock, 
   ArrowRight,
   TrendingUp,
   ShieldCheck,
@@ -91,7 +90,9 @@ const StudentResults = () => {
     doc.setTextColor(15, 23, 42);
     doc.text(`${result.score} / ${totalPoints}`, 30, 105);
     doc.text(`${percentage}%`, 90, 105);
-    doc.setTextColor(percentage >= 50 ? 16, 185, 129 : 244, 63, 94);
+    
+    const statusColor = percentage >= 50 ? { r: 16, g: 185, b: 129 } : { r: 244, g: 63, b: 94 };
+    doc.setTextColor(statusColor.r, statusColor.g, statusColor.b);
     doc.text(percentage >= 50 ? 'PASSED' : 'FAILED', 150, 105);
     
     // Detailed Review Table
