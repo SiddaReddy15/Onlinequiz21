@@ -63,7 +63,7 @@ export const studentController = {
 
   async getAttemptResult(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { examId } = req.params;
+      const examId = req.params.examId as string;
       const result = await studentService.getAttemptResult(req.user!.id, examId);
       res.status(200).json(result);
     } catch (error) {
@@ -82,7 +82,7 @@ export const studentController = {
 
   async getLeaderboard(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { examId } = req.params;
+      const examId = req.params.examId as string;
       const leaderboard = await studentService.getLeaderboard(examId);
       res.status(200).json(leaderboard);
     } catch (error) {

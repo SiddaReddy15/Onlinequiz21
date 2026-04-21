@@ -1,10 +1,10 @@
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
+import { db } from '../db/index';
+import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { AppError } from '../utils/errorHandler.js';
+import { AppError } from '../utils/errorHandler';
 
 export const authService = {
   async register(data: any) {

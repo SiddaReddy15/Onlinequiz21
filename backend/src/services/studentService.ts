@@ -12,7 +12,7 @@ export const studentService = {
     // Calculate stats
     const totalAttempts = history.length;
     const avgScore = totalAttempts > 0 
-      ? Math.round(history.reduce((acc, curr) => acc + (curr.score || 0), 0) / totalAttempts) 
+      ? Math.round(history.reduce((acc: number, curr: any) => acc + (curr.score || 0), 0) / totalAttempts) 
       : 0;
 
     // Calculate Platform Rank
@@ -29,13 +29,13 @@ export const studentService = {
     const currentRank = allStudentScores.findIndex(s => s.studentId === studentId) + 1;
 
     return {
-      upcomingExams: available.filter(e => !e.isAttempted).slice(0, 3),
+      upcomingExams: available.filter((e: any) => !e.isAttempted).slice(0, 3),
       recentResults: history.slice(0, 5),
       stats: {
         totalAttempts,
         avgScore,
         currentRank: currentRank > 0 ? `#${currentRank}` : 'N/A',
-        activeMissions: available.filter(e => !e.isAttempted).length
+        activeMissions: available.filter((e: any) => !e.isAttempted).length
       }
     };
   },
@@ -47,9 +47,9 @@ export const studentService = {
 
     const studentAttempts = await db.select().from(attempts).where(eq(attempts.studentId, studentId));
 
-    const attemptedExamIds = studentAttempts.map((a) => a.examId);
+    const attemptedExamIds = studentAttempts.map((a: any) => a.examId);
 
-    return allExams.map((exam) => ({
+    return allExams.map((exam: any) => ({
       ...exam,
       isAttempted: attemptedExamIds.includes(exam.id),
       status: attemptedExamIds.includes(exam.id) ? 'Completed' : 'Available'
@@ -61,7 +61,7 @@ export const studentService = {
     if (!exam) throw new AppError('Exam not found', 404);
 
     const examQuestions = await db.select().from(questions).where(eq(questions.examId, examId));
-    const formattedQuestions = examQuestions.map((q) => ({
+    const formattedQuestions = examQuestions.map((q: any) => ({
       id: q.id,
       type: q.type,
       content: q.content,
@@ -135,8 +135,8 @@ export const studentService = {
 
     let totalScore = 0;
 
-    for (const q of examQuestions) {
-      const studentAns = studentAnswers.find((a) => a.questionId === q.id);
+    for (const q of examQuestions as any[]) {
+      const studentAns = studentAnswers.find((a: any) => a.questionId === q.id);
       if (!studentAns) continue;
 
       let isCorrect = false;
@@ -197,7 +197,7 @@ export const studentService = {
     return {
       score: attempt.score,
       submittedAt: attempt.endTime,
-      questions: qResults.map(q => ({
+      questions: qResults.map((q: any) => ({
         ...q,
         options: q.options ? JSON.parse(q.options) : null,
         correctAnswers: JSON.parse(q.correctAnswers),

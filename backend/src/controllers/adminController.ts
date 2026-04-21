@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { adminService } from '../services/adminService.js';
-import { AuthRequest } from '../middleware/auth.js';
+import { adminService } from '../services/adminService';
+import { AuthRequest } from '../middleware/auth';
 
 export const adminController = {
   async getDashboardStats(req: AuthRequest, res: Response, next: NextFunction) {
@@ -51,7 +51,7 @@ export const adminController = {
 
   async updateExam(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const exam = await adminService.updateExam(id, req.body);
       res.status(200).json(exam);
     } catch (error) {
@@ -71,7 +71,7 @@ export const adminController = {
 
   async deleteExam(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const result = await adminService.deleteExam(id);
       res.status(200).json(result);
     } catch (error) {
@@ -81,7 +81,7 @@ export const adminController = {
 
   async getExamById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const exam = await adminService.getExamById(id);
       if (!exam) return res.status(404).json({ message: 'Exam not found' });
       res.status(200).json(exam);

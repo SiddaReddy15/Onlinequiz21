@@ -1,5 +1,5 @@
-import { db } from '../db/index.js';
-import { users, exams, questions, attempts, answers } from '../db/schema.js';
+import { db } from '../db/index';
+import { users, exams, questions, attempts, answers } from '../db/schema';
 import { eq, sql, count } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
@@ -80,7 +80,7 @@ export const adminService = {
   },
 
   async addQuestions(examId: string, questionList: any[]) {
-    const values = questionList.map((q) => ({
+    const values = questionList.map((q: any) => ({
       id: uuidv4(),
       examId,
       type: q.type,
@@ -106,14 +106,14 @@ export const adminService = {
 
     const stats: Record<string, { correct: number, total: number }> = {};
     
-    allAnswers.forEach(ans => {
+    allAnswers.forEach((ans: any) => {
       const cat = ans.category || 'General';
       if (!stats[cat]) stats[cat] = { correct: 0, total: 0 };
       stats[cat].total++;
       if (ans.isCorrect) stats[cat].correct++;
     });
 
-    const accuracyData = Object.keys(stats).map(name => ({
+    const accuracyData = Object.keys(stats).map((name: string) => ({
       name,
       acc: Math.round((stats[name].correct / stats[name].total) * 100)
     }));
