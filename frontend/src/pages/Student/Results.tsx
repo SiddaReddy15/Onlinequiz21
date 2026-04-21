@@ -23,6 +23,9 @@ import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 const StudentResults = () => {
   const { id: examId } = useParams();
   const [result, setResult] = useState<any>(null);
@@ -40,6 +43,97 @@ const StudentResults = () => {
     fetchResult();
   }, [examId]);
 
+  const handleExportPDF = () => {
+    if (!result) return;
+
+    const doc = new jsPDF();
+    const totalPoints = result.questions.reduce((acc: number, q: any) => acc + q.points, 0);
+    const percentage = Math.round((result.score / totalPoints) * 100);
+    
+    // Add Brand Header
+    doc.setFillColor(13, 17, 23); // Dark background like the app
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('QuizPro Sentinel', 20, 25);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Official Performance Report', 20, 32);
+    
+    // Student & Exam Info
+    doc.setTextColor(100, 116, 139);
+    doc.setFontSize(10);
+    doc.text('ASSESSMENT DETAILS', 20, 55);
+    
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(result.questions[0]?.examTitle || 'Assessment Result', 20, 65);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Submitted on: ${new Date(result.submittedAt).toLocaleString()}`, 20, 72);
+    
+    // Score Summary Card
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(20, 85, 170, 30, 5, 5);
+    
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text('CUMULATIVE SCORE', 30, 95);
+    doc.text('ACCURACY RATE', 90, 95);
+    doc.text('STATUS', 150, 95);
+    
+    doc.setFontSize(16);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`${result.score} / ${totalPoints}`, 30, 105);
+    doc.text(`${percentage}%`, 90, 105);
+    doc.setTextColor(percentage >= 50 ? 16, 185, 129 : 244, 63, 94);
+    doc.text(percentage >= 50 ? 'PASSED' : 'FAILED', 150, 105);
+    
+    // Detailed Review Table
+    doc.setTextColor(100, 116, 139);
+    doc.setFontSize(10);
+    doc.text('DETAILED QUESTION REVIEW', 20, 130);
+    
+    const tableData = result.questions.map((q: any, i: number) => [
+      i + 1,
+      q.content,
+      Array.isArray(q.studentAnswer) ? q.studentAnswer.join(', ') : (q.studentAnswer || '[No Response]'),
+      q.isCorrect ? 'Correct' : 'Incorrect',
+      `${q.pointsEarned} / ${q.points}`
+    ]);
+    
+    autoTable(doc, {
+      startY: 135,
+      head: [['#', 'Question', 'Your Answer', 'Result', 'Points']],
+      body: tableData,
+      headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      columnStyles: {
+        0: { cellWidth: 10 },
+        1: { cellWidth: 80 },
+        2: { cellWidth: 40 },
+        3: { cellWidth: 20 },
+        4: { cellWidth: 20 },
+      },
+    });
+    
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Page ${i} of ${pageCount} | QuizPro Sentinel - Verified Assessment Report`, 105, 285, { align: 'center' });
+    }
+    
+    doc.save(`QuizPro_Result_${result.questions[0]?.examTitle || 'Report'}.pdf`);
+  };
+
   if (!result) return (
     <div className="h-[80vh] flex flex-col items-center justify-center gap-6">
       <div className="relative">
@@ -55,6 +149,12 @@ const StudentResults = () => {
   const totalPoints = result.questions.reduce((acc: number, q: any) => acc + q.points, 0);
   const percentage = (result.score / totalPoints) * 100;
   const isPassed = percentage >= 50;
+
+  const handleShare = () => {
+    const shareText = `🚀 I just completed the ${result.questions[0]?.examTitle || 'Assessment'} on QuizPro Sentinel!\n\n🏆 Score: ${result.score} / ${totalPoints}\n📈 Accuracy: ${Math.round(percentage)}%\n\nCheck your own skills at ${window.location.origin}`;
+    navigator.clipboard.writeText(shareText);
+    toast.success('Result summary copied to clipboard!');
+  };
 
   return (
     <motion.div 
@@ -76,10 +176,16 @@ const StudentResults = () => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button className="px-6 py-3 bg-slate-50 text-slate-600 font-bold rounded-xl border border-slate-200 hover:bg-slate-100 transition-all flex items-center gap-2 text-sm">
+          <button 
+            onClick={handleExportPDF}
+            className="px-6 py-3 bg-slate-50 text-slate-600 font-bold rounded-xl border border-slate-200 hover:bg-slate-100 transition-all flex items-center gap-2 text-sm"
+          >
             <Download size={18} /> Export PDF
           </button>
-          <button className="px-6 py-3 bg-sky-500 text-white font-bold rounded-xl shadow-lg shadow-sky-500/20 hover:bg-sky-600 transition-all flex items-center gap-2 text-sm">
+          <button 
+            onClick={handleShare}
+            className="px-6 py-3 bg-sky-500 text-white font-bold rounded-xl shadow-lg shadow-sky-500/20 hover:bg-sky-600 transition-all flex items-center gap-2 text-sm"
+          >
             <Share2 size={18} /> Share Results
           </button>
         </div>
