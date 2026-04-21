@@ -35,9 +35,18 @@ export const authService = {
       where: eq(users.email, data.email),
     });
 
-    if (!user || !(await bcrypt.compare(data.password, user.password))) {
+    if (!user) {
+      console.log(`Login failed: User not found with email ${data.email}`);
       throw new AppError('Invalid credentials', 401);
     }
+
+    const isPasswordMatch = await bcrypt.compare(data.password, user.password);
+    if (!isPasswordMatch) {
+      console.log(`Login failed: Password mismatch for ${data.email}`);
+      throw new AppError('Invalid credentials', 401);
+    }
+
+    console.log(`Login successful: ${data.email}`);
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
