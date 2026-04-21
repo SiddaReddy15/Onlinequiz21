@@ -1,8 +1,8 @@
-import { Search, Bell, User, LogOut } from 'lucide-react';
+import { Search, Bell } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-50">

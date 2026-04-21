@@ -9,11 +9,7 @@ import {
   Users,
   GraduationCap,
   Settings,
-  ChevronRight,
-  ShieldCheck,
-  Zap,
-  Activity,
-  Layers
+  Activity
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
