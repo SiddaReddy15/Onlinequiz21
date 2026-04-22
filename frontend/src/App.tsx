@@ -14,6 +14,7 @@ import AdminStudents from './pages/Admin/Students';
 import AdminSettings from './pages/Admin/Settings';
 import StudentDashboard from './pages/Student/Dashboard';
 import TakeExam from './pages/Student/TakeExam';
+import AvailableExams from './pages/Student/AvailableExams';
 import StudentResults from './pages/Student/Results';
 import ResultsList from './pages/Student/ResultsList';
 import Leaderboard from './pages/Student/Leaderboard';
@@ -70,6 +71,7 @@ function AppRoutes() {
 
       {/* Student Routes */}
       <Route path="/student" element={<ProtectedRoute roles={['student']}><StudentDashboard /></ProtectedRoute>} />
+      <Route path="/student/exams" element={<ProtectedRoute roles={['student']}><AvailableExams /></ProtectedRoute>} />
       <Route path="/student/exams/:id" element={<ProtectedRoute roles={['student']}><TakeExam /></ProtectedRoute>} />
       <Route path="/student/results" element={<ProtectedRoute roles={['student']}><ResultsList /></ProtectedRoute>} />
       <Route path="/student/results/:id" element={<ProtectedRoute roles={['student']}><StudentResults /></ProtectedRoute>} />

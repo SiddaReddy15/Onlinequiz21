@@ -15,21 +15,14 @@ export const QuickActions = () => {
   const navigate = useNavigate();
 
   const actions: Action[] = [
-    { label: 'Start Exam', icon: Rocket, color: 'bg-sky-500', path: '#assessments', description: 'Begin a new session' },
+    { label: 'Start Exam', icon: Rocket, color: 'bg-sky-500', path: '/student/exams', description: 'Begin a new session' },
     { label: 'Leaderboard', icon: Trophy, color: 'bg-amber-500', path: '/student/leaderboard', description: 'Global rankings' },
     { label: 'Past Results', icon: History, color: 'bg-emerald-500', path: '/student/results', description: 'Review your performance' },
     { label: 'Certificates', icon: Award, color: 'bg-purple-500', path: '/student/results', description: 'Download your awards' },
   ];
 
   const handleActionClick = (action: Action) => {
-    if (action.path === '#assessments') {
-      const element = document.getElementById('assessments');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else {
-      navigate(action.path);
-    }
+    navigate(action.path);
   };
 
   return (
