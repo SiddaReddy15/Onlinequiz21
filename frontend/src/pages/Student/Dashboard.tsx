@@ -68,10 +68,7 @@ const StudentDashboard = () => {
     { name: 'React.js', score: 65, totalQuestions: 100, correctAnswers: 65 },
   ];
 
-  const exams = data?.upcomingExams?.length > 0 ? data.upcomingExams : [
-    { id: '1', title: 'Full Stack Challenge', duration: 90, startTime: new Date().toISOString(), category: 'Development', difficulty: 'Hard' },
-    { id: '2', title: 'Algorithm Mastery', duration: 60, startTime: new Date(Date.now() + 86400000).toISOString(), category: 'CS Fundamentals', difficulty: 'Medium' },
-  ];
+  const exams = data?.upcomingExams || [];
 
   const activities = data?.recentResults?.map((r: any) => ({
     id: r.id,

@@ -38,8 +38,7 @@ export const UpcomingExams = ({ exams }: UpcomingExamsProps) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Active Missions</h2>
-        <button className="text-sky-500 font-black text-xs uppercase tracking-widest hover:underline">View All</button>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Available Assessments</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
