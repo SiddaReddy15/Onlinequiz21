@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Lightbulb, ArrowUpRight, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
 
 interface MotivationCardProps {
   userName?: string;
