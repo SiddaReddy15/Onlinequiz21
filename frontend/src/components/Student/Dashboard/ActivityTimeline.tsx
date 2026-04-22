@@ -29,10 +29,10 @@ export const ActivityTimeline = ({ activities }: ActivityTimelineProps) => {
         <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-slate-100" />
 
         {activities.map((activity) => (
-          <div key={activity.id} className="relative pl-12">
+          <div key={activity.id} className="relative pl-12 group/row cursor-default">
             {/* Timeline Dot */}
             <div className={clsx(
-              "absolute left-0 top-1 w-10 h-10 rounded-2xl flex items-center justify-center border-4 border-white shadow-sm z-10",
+              "absolute left-0 top-1 w-10 h-10 rounded-2xl flex items-center justify-center border-4 border-white shadow-sm z-10 transition-transform group-hover/row:scale-110",
               activity.type === 'exam' && "bg-sky-50 text-sky-600",
               activity.type === 'badge' && "bg-amber-50 text-amber-600",
               activity.type === 'milestone' && "bg-emerald-50 text-emerald-600",
@@ -42,18 +42,18 @@ export const ActivityTimeline = ({ activities }: ActivityTimelineProps) => {
               {activity.type === 'milestone' && <Target size={16} />}
             </div>
 
-            <div>
+            <div className="transition-transform group-hover/row:translate-x-1">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">
                 {format(new Date(activity.timestamp), 'MMM dd, yyyy')}
               </p>
-              <h4 className="text-sm font-bold text-slate-900 leading-tight">
+              <h4 className="text-sm font-bold text-slate-900 leading-tight group-hover/row:text-sky-600 transition-colors">
                 {activity.title}
               </h4>
               {activity.score !== undefined && (
                 <div className="flex items-center gap-2 mt-1.5">
                   <div className="h-1 w-24 bg-slate-100 rounded-full overflow-hidden">
                     <div 
-                      className={clsx("h-full rounded-full", activity.score >= 70 ? "bg-emerald-500" : "bg-sky-500")}
+                      className={clsx("h-full rounded-full transition-all duration-1000", activity.score >= 70 ? "bg-emerald-500" : "bg-sky-500")}
                       style={{ width: `${activity.score}%` }}
                     />
                   </div>

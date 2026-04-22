@@ -80,40 +80,44 @@ interface StatsGridProps {
 }
 
 export const StatsGrid = ({ stats }: StatsGridProps) => {
+  // Dynamic color logic
+  const accuracyColor = stats.avgScore >= 80 ? 'emerald' : stats.avgScore >= 60 ? 'amber' : 'rose';
+  const percentileColor = stats.percentile <= 5 ? 'emerald' : stats.percentile <= 15 ? 'amber' : 'rose';
+  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard 
-        label="Global Percentile"
+        label="Global Standing"
         value={`Top ${stats.percentile}%`}
         icon={Trophy}
-        color="amber"
-        description="Elite Standing"
+        color={percentileColor}
+        description={stats.percentile <= 10 ? "Elite Tier" : "Growing"}
         trend={{ value: 2.4, isUp: true }}
         delay={0.1}
       />
       <StatCard 
-        label="Accuracy Rate"
+        label="Avg. Accuracy"
         value={`${stats.avgScore}%`}
         icon={Target}
-        color="emerald"
-        description="Performance"
+        color={accuracyColor}
+        description={stats.avgScore >= 80 ? "Sharp Shooter" : "Developing"}
         trend={{ value: 5.1, isUp: true }}
         delay={0.2}
       />
       <StatCard 
-        label="Practice Time"
+        label="Total Mastery"
         value={`${Math.floor(stats.totalTimeSpent / 60)}h ${stats.totalTimeSpent % 60}m`}
         icon={Clock}
         color="sky"
-        description="Total Focus"
+        description="Learning Time"
         delay={0.3}
       />
       <StatCard 
-        label="Learning Streak"
+        label="Current Streak"
         value={`${stats.streakDays} Days`}
         icon={Flame}
-        color="rose"
-        description="Consistent"
+        color={stats.streakDays >= 10 ? "rose" : "amber"}
+        description="Daily Habit"
         delay={0.4}
       />
     </div>

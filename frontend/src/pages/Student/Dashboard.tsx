@@ -136,8 +136,8 @@ const StudentDashboard = () => {
       {/* 2-COLUMN GRID LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* LEFT SIDE (8 SPAN) */}
-        <div className="lg:col-span-8 space-y-8">
+        {/* LEFT SIDE (9 SPAN) */}
+        <div className="lg:col-span-9 space-y-8">
           <Stats stats={stats} />
           <PerformanceChart data={performance} />
           <UpcomingExams exams={exams} />
@@ -145,31 +145,18 @@ const StudentDashboard = () => {
           <RecentActivity activities={activities} />
         </div>
 
-        {/* RIGHT SIDE (4 SPAN) */}
-        <div className="lg:col-span-4 space-y-8">
-          <ProgressCard />
+        {/* RIGHT SIDE (3 SPAN) */}
+        <div className="lg:col-span-3 space-y-8">
+          <ProgressCard userName={user?.name} topic={skills[0]?.name} />
           <RankInsights rank={stats.currentRank} percentile={stats.percentile} />
           <QuickActions />
           <Achievements badges={badges} />
           
-          {/* Motivation Insight Card */}
-          <div className="bg-slate-900 text-white p-8 rounded-[2rem] relative overflow-hidden shadow-2xl">
-            <div className="relative z-10">
-              <h3 className="text-xl font-bold mb-2">Daily Goal</h3>
-              <p className="text-slate-400 text-sm mb-6">Complete one more quiz to reach your weekly milestone!</p>
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-sky-500 w-[75%]" />
-              </div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-sky-400 text-right">75% Achieved</p>
-            </div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-sky-500/10 rounded-full blur-3xl" />
-          </div>
-
           <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm text-center">
             <HelpCircle size={32} className="mx-auto text-slate-300 mb-3" />
-            <h4 className="font-bold text-slate-900">Need Help?</h4>
-            <p className="text-slate-500 text-xs mt-1">Check our documentation or contact support.</p>
-            <button className="mt-4 w-full py-2.5 text-sky-600 bg-sky-50 rounded-xl text-xs font-bold hover:bg-sky-100 transition-all">
+            <h4 className="font-bold text-slate-900 text-sm">Need Assistance?</h4>
+            <p className="text-slate-500 text-[10px] mt-1 leading-relaxed">Check our knowledge base or reach out to our dedicated support team.</p>
+            <button className="mt-4 w-full py-2.5 text-sky-600 bg-sky-50 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-100 transition-all">
               Contact Support
             </button>
           </div>
