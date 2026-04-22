@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -19,6 +20,7 @@ import Leaderboard from './pages/Student/Leaderboard';
 import LeaderboardList from './pages/Student/LeaderboardList';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const ProtectedRoute = ({ children, roles }: { children: React.ReactNode, roles?: string[] }) => {
   const { user, isLoading } = useAuth();
@@ -83,7 +85,9 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <AppRoutes />
+        <ErrorBoundary>
+          <AppRoutes />
+        </ErrorBoundary>
         <Toaster position="top-right" />
       </Router>
     </AuthProvider>
