@@ -116,7 +116,7 @@ const AvailableExams = () => {
                   onClick={() => navigate(`/student/exams/${exam.id}`)}
                   className="w-full py-4 bg-slate-50 text-slate-900 font-black rounded-[2rem] hover:bg-sky-500 hover:text-white transition-all flex items-center justify-center gap-2 group-hover:shadow-lg"
                 >
-                  Start Assessment <ChevronRight size={18} />
+                  {exam.attemptStatus === 'ongoing' ? 'Resume Assessment' : 'Start Assessment'} <ChevronRight size={18} />
                 </button>
               </div>
             </motion.div>

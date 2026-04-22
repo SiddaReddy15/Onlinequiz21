@@ -40,7 +40,7 @@ export const studentService = {
       .reverse()
       .map((h: any) => ({
         date: format(new Date(h.submittedAt), 'MMM dd'),
-        score: h.score,
+        score: h.accuracy, // Use accuracy percentage for the chart
         title: h.examTitle
       }));
 
@@ -89,18 +89,22 @@ export const studentService = {
 
   async getAvailableExams(studentId: string) {
     const now = new Date();
-    // Get exams that haven't been attempted by the student and are currently active
+    // Get exams that are currently active
     const allExams = await db.select().from(exams).where(and(gt(exams.endTime, now)));
 
     const studentAttempts = await db.select().from(attempts).where(eq(attempts.studentId, studentId));
 
-    const attemptedExamIds = studentAttempts.map((a: any) => a.examId);
-
-    return allExams.map((exam: any) => ({
-      ...exam,
-      isAttempted: attemptedExamIds.includes(exam.id),
-      status: attemptedExamIds.includes(exam.id) ? 'Completed' : 'Available'
-    }));
+    return allExams.map((exam: any) => {
+      const attempt = studentAttempts.find((a: any) => a.examId === exam.id);
+      const isSubmitted = attempt?.status === 'submitted';
+      
+      return {
+        ...exam,
+        isAttempted: isSubmitted,
+        status: isSubmitted ? 'Completed' : 'Available',
+        attemptStatus: attempt?.status || 'none'
+      };
+    });
   },
 
   async startAttempt(studentId: string, examId: string) {
@@ -302,7 +306,7 @@ export const studentService = {
   },
 
   async getExamHistory(studentId: string) {
-    return await db
+    const history = await db
       .select({
         id: attempts.id,
         examId: exams.id,
@@ -315,6 +319,19 @@ export const studentService = {
       .innerJoin(exams, eq(attempts.examId, exams.id))
       .where(and(eq(attempts.studentId, studentId), eq(attempts.status, 'submitted')))
       .orderBy(sql`${attempts.endTime} DESC`);
+
+    // For each attempt, get the total possible marks for the exam
+    const formattedHistory = await Promise.all(history.map(async (h) => {
+      const examQuestions = await db.select({ points: questions.points }).from(questions).where(eq(questions.examId, h.examId!));
+      const totalMarks = examQuestions.reduce((acc, q) => acc + (q.points || 0), 0);
+      return {
+        ...h,
+        totalMarks: totalMarks || 100, // Fallback to 100 if no questions
+        accuracy: totalMarks > 0 ? Math.round((h.score! / totalMarks) * 100) : 0
+      };
+    }));
+
+    return formattedHistory;
   },
 
   async runCode(code: string, language: string) {

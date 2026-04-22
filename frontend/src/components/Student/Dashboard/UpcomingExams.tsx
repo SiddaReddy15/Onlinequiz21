@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { BookOpen, Clock, Calendar, ArrowRight, Star, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { clsx } from 'clsx';
 
 interface Exam {
   id: string;
@@ -10,6 +11,7 @@ interface Exam {
   startTime: string;
   category: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  attemptStatus?: 'none' | 'ongoing' | 'submitted';
 }
 
 interface UpcomingExamsProps {
@@ -27,7 +29,7 @@ export const UpcomingExams = ({ exams }: UpcomingExamsProps) => {
         <p className="text-slate-500 text-sm mt-1 max-w-xs mx-auto">Don't worry, you're all caught up! Check back soon for new assessments.</p>
       </div>
       <button 
-        onClick={() => navigate('/student')}
+        onClick={() => navigate('/student/exams')}
         className="mt-4 bg-sky-500 hover:bg-sky-600 text-white px-8 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-sky-500/20 active:scale-95"
       >
         Explore Other Exams
@@ -52,9 +54,15 @@ export const UpcomingExams = ({ exams }: UpcomingExamsProps) => {
             className="group relative bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-sky-500/10 transition-all overflow-hidden"
           >
             {/* Status Tag */}
-            <div className="absolute top-6 right-6 flex items-center gap-1.5 px-3 py-1 bg-sky-50 text-sky-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-sky-100">
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-              Available
+            <div className={clsx(
+              "absolute top-6 right-6 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+              exam.attemptStatus === 'ongoing' ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-sky-50 text-sky-600 border-sky-100"
+            )}>
+              <span className={clsx(
+                "w-1.5 h-1.5 rounded-full animate-pulse",
+                exam.attemptStatus === 'ongoing' ? "bg-amber-500" : "bg-sky-500"
+              )} />
+              {exam.attemptStatus === 'ongoing' ? 'In Progress' : 'Available'}
             </div>
 
             <div className="flex flex-col h-full">
@@ -66,7 +74,7 @@ export const UpcomingExams = ({ exams }: UpcomingExamsProps) => {
                   <h3 className="text-xl font-black text-slate-900 leading-tight group-hover:text-sky-600 transition-colors">
                     {exam.title}
                   </h3>
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">{exam.category}</p>
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">{exam.category || 'General'}</p>
                 </div>
               </div>
 
@@ -81,7 +89,7 @@ export const UpcomingExams = ({ exams }: UpcomingExamsProps) => {
                   <div className="p-1.5 bg-slate-50 rounded-lg shrink-0">
                     <Star size={14} className="text-amber-400" />
                   </div>
-                  <span className="text-[11px] font-bold truncate">{exam.difficulty}</span>
+                  <span className="text-[11px] font-bold truncate">{exam.difficulty || 'Medium'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-500 overflow-hidden">
                   <div className="p-1.5 bg-slate-50 rounded-lg shrink-0">
@@ -93,15 +101,18 @@ export const UpcomingExams = ({ exams }: UpcomingExamsProps) => {
                   <div className="p-1.5 bg-slate-50 rounded-lg shrink-0">
                     <ShieldCheck size={14} className="text-emerald-500" />
                   </div>
-                  <span className="text-[11px] font-bold truncate">Verified</span>
+                  <span className="text-[11px] font-bold truncate">Secure</span>
                 </div>
               </div>
 
               <button
                 onClick={() => navigate(`/student/exams/${exam.id}`)}
-                className="mt-auto w-full py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black text-sm tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 group-hover:shadow-sky-500/40"
+                className={clsx(
+                  "mt-auto w-full py-4 rounded-2xl font-black text-sm tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 group-hover:shadow-sky-500/40",
+                  exam.attemptStatus === 'ongoing' ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-sky-500 hover:bg-sky-600 text-white"
+                )}
               >
-                Launch Assessment
+                {exam.attemptStatus === 'ongoing' ? 'Resume Assessment' : 'Launch Assessment'}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
