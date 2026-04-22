@@ -21,6 +21,15 @@ export const studentController = {
     }
   },
 
+  async getLeaderboardExams(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const exams = await studentService.getLeaderboardExams(req.user!.id);
+      res.status(200).json(exams);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async startAttempt(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { examId } = req.body;

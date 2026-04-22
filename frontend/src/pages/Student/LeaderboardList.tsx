@@ -18,7 +18,7 @@ const LeaderboardList = () => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const { data } = await api.get('/student/exams/available');
+        const { data } = await api.get('/student/exams/leaderboard');
         setExams(data);
       } catch (error) {
         toast.error('Failed to load leaderboards');

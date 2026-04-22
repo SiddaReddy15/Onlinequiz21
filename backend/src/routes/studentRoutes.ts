@@ -9,6 +9,7 @@ router.use(roleMiddleware(['student']));
 
 router.get('/dashboard', studentController.getDashboard);
 router.get('/exams/available', studentController.getAvailableExams);
+router.get('/exams/leaderboard', studentController.getLeaderboardExams);
 router.get('/history', studentController.getExamHistory);
 router.post('/attempt/start', studentController.startAttempt);
 router.post('/attempt/save-answer', studentController.autoSaveAnswer);

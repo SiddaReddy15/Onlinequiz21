@@ -51,15 +51,7 @@ const StudentDashboard = () => {
     streakDays: data?.stats?.streakDays ?? 12,
   };
 
-  const performance = data?.performanceHistory?.length > 0 ? data.performanceHistory : [
-    { date: 'Week 1', score: 45 },
-    { date: 'Week 2', score: 52 },
-    { date: 'Week 3', score: 48 },
-    { date: 'Week 4', score: 70 },
-    { date: 'Week 5', score: 65 },
-    { date: 'Week 6', score: 85 },
-    { date: 'Week 7', score: 82 },
-  ];
+  const performance = data?.performanceHistory?.length > 0 ? data.performanceHistory : [];
 
 
   const exams = data?.upcomingExams || [];
@@ -70,17 +62,9 @@ const StudentDashboard = () => {
     title: r.examTitle,
     timestamp: r.submittedAt,
     score: r.score
-  })) || [
-    { id: 'a1', type: 'exam', title: 'React Basics', timestamp: new Date().toISOString(), score: 92 },
-    { id: 'a2', type: 'badge', title: 'Earned "Fast Learner" Badge', timestamp: new Date(Date.now() - 3600000).toISOString() },
-    { id: 'a3', type: 'exam', title: 'SQL Intermediate', timestamp: new Date(Date.now() - 86400000).toISOString(), score: 78 },
-  ];
+  })) || [];
 
-  const badges = data?.badges || [
-    { id: 'b1', title: 'First Steps', icon: 'award', color: 'sky', isLocked: false, description: 'Completed your first assessment' },
-    { id: 'b2', title: 'Top Scorer', icon: 'zap', color: 'amber', isLocked: false, description: 'Scored 90%+ in an exam' },
-    { id: 'b3', title: 'Consistent', icon: 'flame', color: 'rose', isLocked: true, description: '7-day active streak' },
-  ];
+  const badges = data?.badges || [];
 
   if (isLoading) return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 animate-pulse">
@@ -143,7 +127,11 @@ const StudentDashboard = () => {
 
         {/* RIGHT SIDE (4 SPAN) */}
         <div className="lg:col-span-4 space-y-8">
-          <ProgressCard userName={user?.name} topic={data?.topTopic || 'Software Engineering'} />
+          <ProgressCard 
+            userName={user?.name} 
+            topic={data?.topTopic || 'Software Engineering'} 
+            percentile={data?.stats?.percentile}
+          />
           <RankInsights rank={stats.currentRank} percentile={stats.percentile} />
           <QuickActions />
           <Achievements badges={badges} />

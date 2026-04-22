@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { 
   Trophy, 
@@ -7,15 +8,19 @@ import {
   Timer, 
   User, 
   Search,
-  Award
+  Award,
+  Zap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { clsx } from 'clsx';
 
 const Leaderboard = () => {
   const { id: examId } = useParams();
+  const { user } = useAuth();
   const [entries, setEntries] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -31,7 +36,17 @@ const Leaderboard = () => {
     fetchLeaderboard();
   }, [examId]);
 
+  const userEntry = useMemo(() => {
+    const index = entries.findIndex(e => e.studentName === user?.name);
+    return index !== -1 ? { ...entries[index], rank: index + 1 } : null;
+  }, [entries, user]);
+
+  const filteredEntries = useMemo(() => {
+    return entries.filter(e => e.studentName.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [entries, searchTerm]);
+
   const formatDuration = (start: string, end: string) => {
+    if (!start || !end) return 'N/A';
     const duration = new Date(end).getTime() - new Date(start).getTime();
     const minutes = Math.floor(duration / 60000);
     const seconds = Math.floor((duration % 60000) / 1000);
@@ -45,14 +60,14 @@ const Leaderboard = () => {
     </div>
   );
 
-  const topThree = entries.slice(0, 3);
-  const remaining = entries.slice(3);
+  const topThree = filteredEntries.slice(0, 3);
+  const remaining = filteredEntries.slice(3);
 
   return (
     <div className="max-w-6xl mx-auto pb-20 px-6">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div className="flex items-center gap-6">
-          <Link to="/student" className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-slate-400 hover:text-sky-600 transition-all">
+          <Link to="/student/leaderboard" className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-slate-400 hover:text-sky-600 transition-all">
             <ArrowLeft size={24} />
           </Link>
           <div>
@@ -60,11 +75,26 @@ const Leaderboard = () => {
             <p className="text-slate-500 font-medium">Real-time performance distribution of the cohort.</p>
           </div>
         </div>
+
+        {userEntry && (
+          <div className="bg-sky-500 text-white px-6 py-3 rounded-2xl flex items-center gap-4 shadow-lg shadow-sky-500/20">
+             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <Zap size={20} />
+             </div>
+             <div>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Your Performance</p>
+                <p className="text-lg font-black">Rank #{userEntry.rank} <span className="mx-2 opacity-40">|</span> {userEntry.score} PTS</p>
+             </div>
+          </div>
+        )}
+
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input 
             type="text" 
             placeholder="Search candidate..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none w-64 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm"
           />
         </div>
@@ -166,10 +196,16 @@ const Leaderboard = () => {
                key={idx}
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
-               className="p-6 md:p-8 flex items-center justify-between hover:bg-slate-50 transition-colors group"
+               className={clsx(
+                 "p-6 md:p-8 flex items-center justify-between hover:bg-slate-50 transition-colors group",
+                 entry.studentName === user?.name && "bg-sky-50 border-y border-sky-100"
+               )}
              >
                <div className="flex items-center gap-6">
-                 <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-black text-slate-400 group-hover:bg-sky-500 group-hover:text-white transition-all">
+                 <div className={clsx(
+                   "w-10 h-10 rounded-xl flex items-center justify-center font-black transition-all",
+                   entry.studentName === user?.name ? "bg-sky-500 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-sky-500 group-hover:text-white"
+                 )}>
                    {idx + 4}
                  </div>
                  <div className="flex items-center gap-4">

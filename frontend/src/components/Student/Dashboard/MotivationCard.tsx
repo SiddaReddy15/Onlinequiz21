@@ -4,9 +4,12 @@ import { ArrowUpRight, Sparkles } from 'lucide-react';
 interface MotivationCardProps {
   userName?: string;
   topic?: string;
+  percentile?: number;
 }
 
-export const MotivationCard = ({ userName, topic = 'Software Engineering' }: MotivationCardProps) => {
+export const MotivationCard = ({ userName, topic = 'Software Engineering', percentile = 0 }: MotivationCardProps) => {
+  const outperform = Math.max(0, 100 - (percentile || 100));
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -23,7 +26,7 @@ export const MotivationCard = ({ userName, topic = 'Software Engineering' }: Mot
         </h3>
         
         <p className="text-slate-300 text-xs font-medium leading-relaxed mb-6">
-          Excellent work, <span className="text-white font-bold">{userName}</span>! Your recent focus on <span className="text-sky-400 font-bold">{topic}</span> is paying off. You're outperforming 85% of peers this week.
+          Excellent work, <span className="text-white font-bold">{userName}</span>! Your recent focus on <span className="text-sky-400 font-bold">{topic}</span> is paying off. You're outperforming {outperform}% of peers this week.
         </p>
 
         <button className="mt-auto group flex items-center gap-2 text-white font-black text-[9px] uppercase tracking-[0.2em] hover:gap-3 transition-all">

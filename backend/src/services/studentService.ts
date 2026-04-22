@@ -12,8 +12,9 @@ export const studentService = {
     
     // Calculate stats
     const totalAttempts = history.length;
-    const avgScore = totalAttempts > 0 
-      ? Math.round(history.reduce((acc: number, curr: any) => acc + (curr.score || 0), 0) / totalAttempts) 
+    const totalPossiblePoints = history.reduce((acc: number, curr: any) => acc + (curr.totalMarks || 0), 0);
+    const avgAccuracy = totalPossiblePoints > 0 
+      ? Math.round((history.reduce((acc: number, curr: any) => acc + (curr.score || 0), 0) / totalPossiblePoints) * 100) 
       : 0;
 
     // Calculate Platform Rank
@@ -63,8 +64,11 @@ export const studentService = {
     // Global Leaderboard Preview
     const globalLeaderboard = await this.getGlobalLeaderboard(5);
 
+    const upcomingExams = available.filter((e: any) => !e.isAttempted);
+    console.log(`[Dashboard Sync] Sending ${upcomingExams.length} exams to student ${studentId}`);
+
     return {
-      upcomingExams: available.filter((e: any) => !e.isAttempted).slice(0, 3),
+      upcomingExams,
       recentResults: history.slice(0, 5),
       performanceHistory,
       topicAnalysis: topics,
@@ -72,7 +76,7 @@ export const studentService = {
       badges,
       stats: {
         totalAttempts,
-        avgScore,
+        avgScore: avgAccuracy,
         totalTimeSpent: history.reduce((acc: number, curr: any) => acc + (curr.duration || 0), 0), // Calculate real time
         currentRank: currentRank > 0 ? `#${currentRank}` : 'N/A',
         totalStudents,
@@ -89,22 +93,55 @@ export const studentService = {
 
   async getAvailableExams(studentId: string) {
     const now = new Date();
-    // Get exams that are currently active
-    const allExams = await db.select().from(exams).where(and(gt(exams.endTime, now)));
+    const allExams = await db.select().from(exams);
 
     const studentAttempts = await db.select().from(attempts).where(eq(attempts.studentId, studentId));
 
-    return allExams.map((exam: any) => {
-      const attempt = studentAttempts.find((a: any) => a.examId === exam.id);
-      const isSubmitted = attempt?.status === 'submitted';
+    // Filter out exams that have been SUBMITTED.
+    // We KEEP ongoing exams so the student can resume them from the dashboard.
+    return allExams
+      .filter(exam => {
+        const attempt = studentAttempts.find(a => a.examId === exam.id);
+        return attempt?.status !== 'submitted';
+      })
+      .map((exam: any) => {
+        const attempt = studentAttempts.find(a => a.examId === exam.id);
+        return {
+          ...exam,
+          isAttempted: attempt?.status === 'submitted',
+          status: attempt?.status === 'submitted' ? 'Completed' : 'Available',
+          attemptStatus: attempt?.status || 'none'
+        };
+      });
+  },
+
+  async getLeaderboardExams(studentId: string) {
+    try {
+      console.log(`[Leaderboard] Fetching exams for student: ${studentId}`);
       
-      return {
-        ...exam,
-        isAttempted: isSubmitted,
-        status: isSubmitted ? 'Completed' : 'Available',
-        attemptStatus: attempt?.status || 'none'
-      };
-    });
+      const now = new Date();
+      
+      // Get all exams that the student has participated in
+      const studentAttempts = await db.select({ examId: attempts.examId }).from(attempts).where(eq(attempts.studentId, studentId));
+      const attemptedExamIds = new Set(studentAttempts.map(a => a.examId).filter(Boolean));
+      
+      console.log(`[Leaderboard] Student attempted ${attemptedExamIds.size} exams`);
+
+      const allExams = await db.select().from(exams);
+      console.log(`[Leaderboard] Total exams in DB: ${allExams.length}`);
+      
+      const filtered = allExams.filter(exam => {
+        const isAttempted = attemptedExamIds.has(exam.id);
+        const isActive = exam.endTime && new Date(exam.endTime) > now;
+        return isAttempted || isActive;
+      });
+
+      console.log(`[Leaderboard] Returning ${filtered.length} relevant exams`);
+      return filtered;
+    } catch (error: any) {
+      console.error('[Leaderboard Error Details]:', error.message, error.stack);
+      throw error;
+    }
   },
 
   async startAttempt(studentId: string, examId: string) {
@@ -272,18 +309,24 @@ export const studentService = {
       })
       .from(attempts)
       .innerJoin(users, eq(attempts.studentId, users.id))
-      .where(and(eq(attempts.examId, examId), eq(attempts.status, 'submitted')))
-      .all();
+      .where(and(eq(attempts.examId, examId), eq(attempts.status, 'submitted')));
 
-    return results.sort((a, b) => {
-      if (b.score! !== a.score!) return b.score! - a.score!;
+    const sorted = results.sort((a, b) => {
+      const scoreA = a.score || 0;
+      const scoreB = b.score || 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
       
-      const timeA = a.endTime!.getTime() - a.startTime!.getTime();
-      const timeB = b.endTime!.getTime() - b.startTime!.getTime();
+      const timeA = (a.endTime?.getTime() || 0) - (a.startTime?.getTime() || 0);
+      const timeB = (b.endTime?.getTime() || 0) - (b.startTime?.getTime() || 0);
       if (timeA !== timeB) return timeA - timeB;
       
-      return a.endTime!.getTime() - b.endTime!.getTime();
+      return (a.endTime?.getTime() || 0) - (b.endTime?.getTime() || 0);
     });
+
+    return sorted.map((entry, index) => ({
+      ...entry,
+      rank: index + 1
+    }));
   },
 
   async getGlobalLeaderboard(limit = 5) {

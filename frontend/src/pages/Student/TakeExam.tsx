@@ -154,13 +154,6 @@ const TakeExam = () => {
   const handleSubmit = async () => {
     if (isSubmitting) return;
     
-    const unansweredCount = exam.questions.length - Object.keys(answers).length;
-    const confirmMsg = unansweredCount > 0 
-      ? `You have ${unansweredCount} unanswered questions. Are you sure you want to submit?`
-      : 'Are you sure you want to submit your assessment?';
-
-    if (!window.confirm(confirmMsg)) return;
-
     setIsSubmitting(true);
     const loadingToast = toast.loading('Finalizing your submission...');
     try {
