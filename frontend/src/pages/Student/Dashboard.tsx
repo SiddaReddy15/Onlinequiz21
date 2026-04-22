@@ -133,7 +133,7 @@ const StudentDashboard = () => {
         <div className="lg:col-span-8 space-y-8">
           <Stats stats={stats} />
           <PerformanceChart data={performance} />
-          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
+          <div id="assessments" className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
             <UpcomingExams exams={exams} />
             <RecentActivity activities={activities} />
           </div>

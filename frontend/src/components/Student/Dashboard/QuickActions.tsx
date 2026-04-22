@@ -15,11 +15,22 @@ export const QuickActions = () => {
   const navigate = useNavigate();
 
   const actions: Action[] = [
-    { label: 'Start Exam', icon: Rocket, color: 'bg-sky-500', path: '/student', description: 'Begin a new session' },
+    { label: 'Start Exam', icon: Rocket, color: 'bg-sky-500', path: '#assessments', description: 'Begin a new session' },
     { label: 'Leaderboard', icon: Trophy, color: 'bg-amber-500', path: '/student/leaderboard', description: 'Global rankings' },
     { label: 'Past Results', icon: History, color: 'bg-emerald-500', path: '/student/results', description: 'Review your performance' },
-    { label: 'Certificates', icon: Award, color: 'bg-purple-500', path: '#', description: 'Download your awards' },
+    { label: 'Certificates', icon: Award, color: 'bg-purple-500', path: '/student/results', description: 'Download your awards' },
   ];
+
+  const handleActionClick = (action: Action) => {
+    if (action.path === '#assessments') {
+      const element = document.getElementById('assessments');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate(action.path);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -28,7 +39,7 @@ export const QuickActions = () => {
           key={action.label}
           whileHover={{ scale: 1.02, x: 5 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => action.path !== '#' && navigate(action.path)}
+          onClick={() => handleActionClick(action)}
           className="group bg-white p-6 rounded-3xl border border-slate-200 shadow-sm cursor-pointer hover:border-sky-500/50 hover:shadow-xl hover:shadow-sky-500/5 transition-all flex items-center gap-5"
         >
           <div className={clsx(

@@ -90,7 +90,7 @@ export const StatsGrid = ({ stats }: StatsGridProps) => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard 
         label="Global Standing"
-        value={stats.currentRank === '#1' ? 'Elite Rank' : `Top ${stats.percentile}%`}
+        value={stats.currentRank || 'N/A'}
         icon={Trophy}
         color={percentileColor}
         description={isTopTier ? "Elite Tier" : "Growing"}
