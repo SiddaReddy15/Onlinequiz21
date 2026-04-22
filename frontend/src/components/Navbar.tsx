@@ -42,7 +42,7 @@ const Navbar = () => {
         </button>
 
         <button 
-          onClick={() => user?.role === 'admin' ? navigate('/admin/settings') : toast.error('Profile settings coming soon')}
+          onClick={() => navigate(user?.role === 'admin' ? '/admin/settings' : '/student/settings')}
           className="p-2.5 text-slate-900 bg-white border-2 border-slate-900 hover:bg-slate-900 hover:text-white rounded-xl transition-all shadow-sm"
         >
           <Settings size={20} />
