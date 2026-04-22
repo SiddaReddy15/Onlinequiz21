@@ -82,10 +82,10 @@ const StudentDashboard = () => {
     { id: 'a3', type: 'exam', title: 'SQL Intermediate', timestamp: new Date(Date.now() - 86400000).toISOString(), score: 78 },
   ];
 
-  const badges = data?.badges?.length > 0 ? data.badges : [
-    { id: 'b1', title: 'Problem Solver', icon: 'zap', color: 'sky', isLocked: false, description: 'Solved 50+ problems' },
-    { id: 'b2', title: 'Top 10%', icon: 'trophy', color: 'amber', isLocked: false, description: 'Ranked in global top 10%' },
-    { id: 'b3', title: 'Streak Hero', icon: 'flame', color: 'rose', isLocked: false, description: '7-day active streak' },
+  const badges = data?.badges || [
+    { id: 'b1', title: 'First Steps', icon: 'award', color: 'sky', isLocked: false, description: 'Completed your first assessment' },
+    { id: 'b2', title: 'Top Scorer', icon: 'zap', color: 'amber', isLocked: false, description: 'Scored 90%+ in an exam' },
+    { id: 'b3', title: 'Consistent', icon: 'flame', color: 'rose', isLocked: true, description: '7-day active streak' },
   ];
 
   if (isLoading) return (
@@ -105,9 +105,9 @@ const StudentDashboard = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8 bg-[#f8fafc] min-h-screen">
+    <div className="space-y-8 pb-12">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             Welcome back, <span className="text-sky-500">{user?.name}</span>
@@ -136,27 +136,29 @@ const StudentDashboard = () => {
       {/* 2-COLUMN GRID LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* LEFT SIDE (9 SPAN) */}
-        <div className="lg:col-span-9 space-y-8">
+        {/* LEFT SIDE (8 SPAN) */}
+        <div className="lg:col-span-8 space-y-8">
           <Stats stats={stats} />
           <PerformanceChart data={performance} />
-          <UpcomingExams exams={exams} />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <UpcomingExams exams={exams} />
+            <RecentActivity activities={activities} />
+          </div>
           <SkillBreakdown skills={skills} />
-          <RecentActivity activities={activities} />
         </div>
 
-        {/* RIGHT SIDE (3 SPAN) */}
-        <div className="lg:col-span-3 space-y-8">
+        {/* RIGHT SIDE (4 SPAN) */}
+        <div className="lg:col-span-4 space-y-8">
           <ProgressCard userName={user?.name} topic={skills[0]?.name} />
           <RankInsights rank={stats.currentRank} percentile={stats.percentile} />
           <QuickActions />
           <Achievements badges={badges} />
           
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm text-center">
-            <HelpCircle size={32} className="mx-auto text-slate-300 mb-3" />
-            <h4 className="font-bold text-slate-900 text-sm">Need Assistance?</h4>
-            <p className="text-slate-500 text-[10px] mt-1 leading-relaxed">Check our knowledge base or reach out to our dedicated support team.</p>
-            <button className="mt-4 w-full py-2.5 text-sky-600 bg-sky-50 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-100 transition-all">
+          <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm text-center">
+            <HelpCircle size={40} className="mx-auto text-sky-200 mb-4" />
+            <h4 className="font-bold text-slate-900">Need Assistance?</h4>
+            <p className="text-slate-500 text-xs mt-2 leading-relaxed px-4">Our support team is available 24/7 to help you with any technical issues.</p>
+            <button className="mt-6 w-full py-3.5 text-sky-600 bg-sky-50 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-sky-100 transition-all border border-sky-100">
               Contact Support
             </button>
           </div>

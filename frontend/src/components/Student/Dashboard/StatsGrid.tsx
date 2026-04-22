@@ -59,10 +59,10 @@ const StatCard = ({ label, value, icon: Icon, trend, color, description, delay }
       </div>
       
       <div>
-        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-        <div className="flex items-baseline gap-2">
-          <h3 className="text-3xl font-black text-slate-900 tracking-tight">{value}</h3>
-          <span className="text-[10px] font-bold text-slate-400 uppercase">{description}</span>
+        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 line-clamp-1">{label}</p>
+        <div className="flex flex-col">
+          <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none mb-1">{value}</h3>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{description}</span>
         </div>
       </div>
     </motion.div>

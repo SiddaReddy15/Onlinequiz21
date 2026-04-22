@@ -55,10 +55,10 @@ export const studentService = {
 
     // Badges System
     const badges = [];
-    if (totalAttempts >= 1) badges.push({ id: 1, title: 'First Steps', icon: '🎓', color: 'blue' });
-    if (totalAttempts >= 5) badges.push({ id: 2, title: 'Consistent', icon: '🔥', color: 'orange' });
-    if (history.some((h: any) => h.score >= 90)) badges.push({ id: 3, title: 'Top Scorer', icon: '🥇', color: 'amber' });
-    if (currentRank === 1 && totalStudents > 1) badges.push({ id: 4, title: 'Platform King', icon: '👑', color: 'purple' });
+    if (totalAttempts >= 1) badges.push({ id: 'b1', title: 'First Steps', icon: 'award', color: 'sky', isLocked: false, description: 'Completed your first assessment' });
+    if (totalAttempts >= 5) badges.push({ id: 'b2', title: 'Consistent', icon: 'flame', color: 'rose', isLocked: false, description: 'Completed 5+ assessments' });
+    if (history.some((h: any) => h.score >= 90)) badges.push({ id: 'b3', title: 'Top Scorer', icon: 'zap', color: 'amber', isLocked: false, description: 'Scored 90%+ in an exam' });
+    if (currentRank === 1 && totalStudents > 1) badges.push({ id: 'b4', title: 'Platform King', icon: 'trophy', color: 'indigo', isLocked: false, description: 'Ranked #1 globally' });
 
     return {
       upcomingExams: available.filter((e: any) => !e.isAttempted).slice(0, 3),
@@ -69,10 +69,11 @@ export const studentService = {
       stats: {
         totalAttempts,
         avgScore,
+        totalTimeSpent: history.reduce((acc: number, curr: any) => acc + (curr.duration || 0), 0), // Calculate real time
         currentRank: currentRank > 0 ? `#${currentRank}` : 'N/A',
         totalStudents,
         percentile,
-        rankTrend: 'up', // Mocked trend
+        rankTrend: 'up',
         activeMissions: available.filter((e: any) => !e.isAttempted).length
       },
       notifications: [
