@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Crown, Star } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useNavigate } from 'react-router-dom';
 
 interface LeaderboardEntry {
   studentId: string;
@@ -14,12 +15,14 @@ interface GlobalLeaderboardProps {
 }
 
 export const GlobalLeaderboard = ({ entries }: GlobalLeaderboardProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
       <div className="p-8 border-b border-slate-50 flex items-center justify-between">
         <div>
-           <h3 className="text-xl font-black text-slate-900 tracking-tight">Hall of Fame</h3>
-           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Platform Top Performers</p>
+           <h3 className="text-xl font-black text-slate-900 tracking-tight">Global Rankings</h3>
+           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Platform-wide top performers</p>
         </div>
         <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 shadow-inner">
            <Trophy size={20} />
@@ -76,7 +79,10 @@ export const GlobalLeaderboard = ({ entries }: GlobalLeaderboardProps) => {
       </div>
 
       <div className="p-4 bg-slate-50/50">
-         <button className="w-full py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all">
+         <button 
+           onClick={() => navigate('/student/leaderboard')}
+           className="w-full py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all"
+         >
             View Full Leaderboard
          </button>
       </div>

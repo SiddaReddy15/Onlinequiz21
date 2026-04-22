@@ -46,7 +46,7 @@ const StudentDashboard = () => {
     totalAttempts: data?.stats?.totalAttempts ?? 15,
     avgScore: data?.stats?.avgScore ?? 82,
     totalTimeSpent: data?.stats?.totalTimeSpent ?? 540,
-    currentRank: data?.stats?.currentRank ?? '#1',
+    currentRank: data?.stats?.currentRank ?? '1',
     percentile: data?.stats?.percentile ?? 3,
     streakDays: data?.stats?.streakDays ?? 12,
   };
