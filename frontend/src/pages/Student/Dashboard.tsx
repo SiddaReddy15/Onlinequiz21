@@ -150,7 +150,10 @@ const StudentDashboard = () => {
             <HelpCircle size={40} className="mx-auto text-sky-200 mb-4" />
             <h4 className="font-bold text-slate-900">Need Assistance?</h4>
             <p className="text-slate-500 text-xs mt-2 leading-relaxed px-4">Our support team is available 24/7 to help you with any technical issues.</p>
-            <button className="mt-6 w-full py-3.5 text-sky-600 bg-sky-50 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-sky-100 transition-all border border-sky-100">
+            <button 
+              onClick={() => window.location.href = 'mailto:support@quizpro.com?subject=Technical Assistance Request'}
+              className="mt-6 w-full py-3.5 text-sky-600 bg-sky-50 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-sky-100 transition-all border border-sky-100"
+            >
               Contact Support
             </button>
           </div>
