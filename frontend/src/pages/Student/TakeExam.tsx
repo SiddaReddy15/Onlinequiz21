@@ -390,11 +390,8 @@ const TakeExam = () => {
                         <button
                           key={idx}
                           onClick={() => {
-                            const currentAnswers = Array.isArray(answers[currentQ.id]) ? answers[currentQ.id] : [];
-                            const newAnswers = currentAnswers.includes(opt)
-                              ? currentAnswers.filter((a: string) => a !== opt)
-                              : [...currentAnswers, opt];
-                            updateAnswer(currentQ.id, newAnswers);
+                            // Enforce single selection for MCQ
+                            updateAnswer(currentQ.id, [opt]);
                           }}
                           className={clsx(
                             "w-full text-left p-5 rounded-xl border transition-all duration-200 flex items-center justify-between group",

@@ -67,6 +67,10 @@ export const studentService = {
     const upcomingExams = available.filter((e: any) => !e.isAttempted);
     console.log(`[Dashboard Sync] Sending ${upcomingExams.length} exams to student ${studentId}`);
 
+    // Calculate Streak
+    const activityDays = new Set(history.map((h: any) => h.submittedAt ? new Date(h.submittedAt).toDateString() : null).filter(Boolean));
+    const streakDays = activityDays.size; // Simple unique days count for now
+
     return {
       upcomingExams,
       recentResults: history.slice(0, 5),
@@ -77,12 +81,13 @@ export const studentService = {
       stats: {
         totalAttempts,
         avgScore: avgAccuracy,
-        totalTimeSpent: history.reduce((acc: number, curr: any) => acc + (curr.duration || 0), 0), // Calculate real time
+        totalTimeSpent: history.reduce((acc: number, curr: any) => acc + (curr.duration || 0), 0),
         currentRank: currentRank > 0 ? `#${currentRank}` : 'N/A',
         totalStudents,
         percentile,
         rankTrend: 'up',
-        activeMissions: available.filter((e: any) => !e.isAttempted).length
+        activeMissions: available.filter((e: any) => !e.isAttempted).length,
+        streakDays
       },
       notifications: [
         { id: 1, type: 'exam', message: 'New Coding Quest: Python Data Structures is now live!', date: new Date() },
@@ -97,20 +102,23 @@ export const studentService = {
 
     const studentAttempts = await db.select().from(attempts).where(eq(attempts.studentId, studentId));
 
-    // Filter out exams that have been SUBMITTED.
+    // Filter out exams that have been SUBMITTED by THIS student.
     // We KEEP ongoing exams so the student can resume them from the dashboard.
     return allExams
       .filter(exam => {
-        const attempt = studentAttempts.find(a => a.examId === exam.id);
-        return attempt?.status !== 'submitted';
+        const studentExamAttempts = studentAttempts.filter(a => a.examId === exam.id);
+        const hasSubmitted = studentExamAttempts.some(a => a.status === 'submitted');
+        return !hasSubmitted;
       })
       .map((exam: any) => {
-        const attempt = studentAttempts.find(a => a.examId === exam.id);
+        const studentExamAttempts = studentAttempts.filter(a => a.examId === exam.id);
+        const ongoingAttempt = studentExamAttempts.find(a => a.status === 'ongoing');
+        
         return {
           ...exam,
-          isAttempted: attempt?.status === 'submitted',
-          status: attempt?.status === 'submitted' ? 'Completed' : 'Available',
-          attemptStatus: attempt?.status || 'none'
+          isAttempted: studentExamAttempts.length > 0,
+          status: ongoingAttempt ? 'Ongoing' : 'Available',
+          attemptStatus: ongoingAttempt ? 'ongoing' : 'none'
         };
       });
   },
@@ -256,6 +264,8 @@ export const studentService = {
       endTime: new Date(),
     }).where(eq(attempts.id, attemptId));
 
+    console.log(`[Database Update] Attempt ${attemptId} finalized with score ${totalScore}`);
+
     return { score: totalScore };
   },
 
@@ -356,6 +366,8 @@ export const studentService = {
         examTitle: exams.title,
         score: attempts.score,
         status: attempts.status,
+        startTime: attempts.startTime,
+        endTime: attempts.endTime,
         submittedAt: attempts.endTime,
       })
       .from(attempts)
@@ -367,9 +379,14 @@ export const studentService = {
     const formattedHistory = await Promise.all(history.map(async (h) => {
       const examQuestions = await db.select({ points: questions.points }).from(questions).where(eq(questions.examId, h.examId!));
       const totalMarks = examQuestions.reduce((acc, q) => acc + (q.points || 0), 0);
+      
+      const durationMs = h.endTime && h.startTime ? new Date(h.endTime).getTime() - new Date(h.startTime).getTime() : 0;
+      const durationMin = Math.round(durationMs / 60000);
+
       return {
         ...h,
-        totalMarks: totalMarks || 100, // Fallback to 100 if no questions
+        duration: durationMin,
+        totalMarks: totalMarks || 100,
         accuracy: totalMarks > 0 ? Math.round((h.score! / totalMarks) * 100) : 0
       };
     }));

@@ -43,12 +43,12 @@ const StudentDashboard = () => {
 
   // Standard Mock Data for consistent UI
   const stats = {
-    totalAttempts: data?.stats?.totalAttempts ?? 15,
-    avgScore: data?.stats?.avgScore ?? 82,
-    totalTimeSpent: data?.stats?.totalTimeSpent ?? 540,
-    currentRank: data?.stats?.currentRank ?? '1',
-    percentile: data?.stats?.percentile ?? 3,
-    streakDays: data?.stats?.streakDays ?? 12,
+    totalAttempts: data?.stats?.totalAttempts ?? 0,
+    avgScore: data?.stats?.avgScore ?? 0,
+    totalTimeSpent: data?.stats?.totalTimeSpent ?? 0,
+    currentRank: data?.stats?.currentRank ?? 'N/A',
+    percentile: data?.stats?.percentile ?? 0,
+    streakDays: data?.stats?.streakDays ?? 0,
   };
 
   const performance = data?.performanceHistory?.length > 0 ? data.performanceHistory : [];
