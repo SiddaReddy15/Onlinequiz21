@@ -60,11 +60,15 @@ export const studentService = {
     if (history.some((h: any) => h.score >= 90)) badges.push({ id: 'b3', title: 'Top Scorer', icon: 'zap', color: 'amber', isLocked: false, description: 'Scored 90%+ in an exam' });
     if (currentRank === 1 && totalStudents > 1) badges.push({ id: 'b4', title: 'Platform King', icon: 'trophy', color: 'indigo', isLocked: false, description: 'Ranked #1 globally' });
 
+    // Global Leaderboard Preview
+    const globalLeaderboard = await this.getGlobalLeaderboard(5);
+
     return {
       upcomingExams: available.filter((e: any) => !e.isAttempted).slice(0, 3),
       recentResults: history.slice(0, 5),
       performanceHistory,
       topicAnalysis: topics,
+      globalLeaderboard,
       badges,
       stats: {
         totalAttempts,
@@ -276,6 +280,25 @@ export const studentService = {
       
       return a.endTime!.getTime() - b.endTime!.getTime();
     });
+  },
+
+  async getGlobalLeaderboard(limit = 5) {
+    // Global ranking based on total score across all attempts
+    const results = await db
+      .select({
+        studentId: users.id,
+        studentName: users.name,
+        totalScore: sql<number>`SUM(${attempts.score})`,
+        examsCompleted: sql<number>`COUNT(${attempts.id})`
+      })
+      .from(attempts)
+      .innerJoin(users, eq(attempts.studentId, users.id))
+      .where(eq(attempts.status, 'submitted'))
+      .groupBy(users.id, users.name)
+      .orderBy(desc(sql`SUM(${attempts.score})`))
+      .limit(limit);
+
+    return results;
   },
 
   async getExamHistory(studentId: string) {

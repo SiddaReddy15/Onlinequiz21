@@ -7,4 +7,5 @@ export * from './ActivityTimeline';
 export * from './QuickActions';
 export * from './MotivationCard';
 export * from './RankInsights';
+export * from './GlobalLeaderboard';
 export * from './types';

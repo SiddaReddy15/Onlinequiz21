@@ -17,7 +17,8 @@ import {
   ActivityTimeline as RecentActivity,
   QuickActions,
   MotivationCard as ProgressCard,
-  RankInsights
+  RankInsights,
+  GlobalLeaderboard
 } from '../../components/Student/Dashboard';
 
 const StudentDashboard = () => {
@@ -137,6 +138,7 @@ const StudentDashboard = () => {
             <UpcomingExams exams={exams} />
             <RecentActivity activities={activities} />
           </div>
+          <GlobalLeaderboard entries={data?.globalLeaderboard || []} />
         </div>
 
         {/* RIGHT SIDE (4 SPAN) */}
