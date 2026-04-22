@@ -38,31 +38,31 @@ const StatCard = ({ label, value, icon: Icon, trend, color, description, delay }
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group"
+      className="bg-white p-5 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group"
     >
       <div className="flex justify-between items-start mb-4">
         <div className={clsx(
-          "w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:scale-110",
+          "w-10 h-10 rounded-2xl flex items-center justify-center border transition-transform group-hover:scale-110",
           colorMap[color]
         )}>
-          <Icon size={24} />
+          <Icon size={20} />
         </div>
         {trend && (
           <div className={clsx(
-            "flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase",
+            "flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase",
             trend.isUp ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
           )}>
-            {trend.isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            {trend.isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
             {trend.value}%
           </div>
         )}
       </div>
       
       <div>
-        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 line-clamp-1">{label}</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{label}</p>
         <div className="flex flex-col">
-          <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none mb-1">{value}</h3>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{description}</span>
+          <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">{value}</h3>
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{description}</span>
         </div>
       </div>
     </motion.div>
@@ -76,22 +76,24 @@ interface StatsGridProps {
     totalTimeSpent: number;
     percentile: number;
     streakDays: number;
+    currentRank?: string;
   };
 }
 
 export const StatsGrid = ({ stats }: StatsGridProps) => {
   // Dynamic color logic
   const accuracyColor = stats.avgScore >= 80 ? 'emerald' : stats.avgScore >= 60 ? 'amber' : 'rose';
-  const percentileColor = stats.percentile <= 5 ? 'emerald' : stats.percentile <= 15 ? 'amber' : 'rose';
+  const isTopTier = stats.percentile <= 10 || stats.currentRank === '#1';
+  const percentileColor = isTopTier ? 'emerald' : stats.percentile <= 30 ? 'amber' : 'rose';
   
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard 
         label="Global Standing"
-        value={`Top ${stats.percentile}%`}
+        value={stats.currentRank === '#1' ? 'Elite Rank' : `Top ${stats.percentile}%`}
         icon={Trophy}
         color={percentileColor}
-        description={stats.percentile <= 10 ? "Elite Tier" : "Growing"}
+        description={isTopTier ? "Elite Tier" : "Growing"}
         trend={{ value: 2.4, isUp: true }}
         delay={0.1}
       />

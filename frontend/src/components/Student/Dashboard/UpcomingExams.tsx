@@ -70,30 +70,30 @@ export const UpcomingExams = ({ exams }: UpcomingExamsProps) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="flex items-center gap-2.5 text-slate-500">
-                  <div className="p-1.5 bg-slate-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-y-4 gap-x-2 mb-8">
+                <div className="flex items-center gap-2 text-slate-500 overflow-hidden">
+                  <div className="p-1.5 bg-slate-50 rounded-lg shrink-0">
                     <Clock size={14} className="text-slate-400" />
                   </div>
-                  <span className="text-xs font-bold">{exam.duration} Minutes</span>
+                  <span className="text-[11px] font-bold truncate">{exam.duration} Min</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-slate-500">
-                  <div className="p-1.5 bg-slate-50 rounded-lg">
+                <div className="flex items-center gap-2 text-slate-500 overflow-hidden">
+                  <div className="p-1.5 bg-slate-50 rounded-lg shrink-0">
                     <Star size={14} className="text-amber-400" />
                   </div>
-                  <span className="text-xs font-bold">{exam.difficulty}</span>
+                  <span className="text-[11px] font-bold truncate">{exam.difficulty}</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-slate-500">
-                  <div className="p-1.5 bg-slate-50 rounded-lg">
+                <div className="flex items-center gap-2 text-slate-500 overflow-hidden">
+                  <div className="p-1.5 bg-slate-50 rounded-lg shrink-0">
                     <Calendar size={14} className="text-slate-400" />
                   </div>
-                  <span className="text-xs font-bold">{format(new Date(exam.startTime), 'MMM dd, HH:mm')}</span>
+                  <span className="text-[11px] font-bold truncate">{format(new Date(exam.startTime), 'MMM dd, HH:mm')}</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-slate-500">
-                  <div className="p-1.5 bg-slate-50 rounded-lg">
+                <div className="flex items-center gap-2 text-slate-500 overflow-hidden">
+                  <div className="p-1.5 bg-slate-50 rounded-lg shrink-0">
                     <ShieldCheck size={14} className="text-emerald-500" />
                   </div>
-                  <span className="text-xs font-bold">Verified</span>
+                  <span className="text-[11px] font-bold truncate">Verified</span>
                 </div>
               </div>
 

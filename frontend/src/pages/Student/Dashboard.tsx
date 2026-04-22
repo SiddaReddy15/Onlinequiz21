@@ -12,7 +12,6 @@ import { useAuth } from '../../context/AuthContext';
 import {
   StatsGrid as Stats,
   PerformanceChart,
-  SkillsBreakdown as SkillBreakdown,
   UpcomingExams,
   BadgeSystem as Achievements,
   ActivityTimeline as RecentActivity,
@@ -46,7 +45,7 @@ const StudentDashboard = () => {
     totalAttempts: data?.stats?.totalAttempts ?? 15,
     avgScore: data?.stats?.avgScore ?? 82,
     totalTimeSpent: data?.stats?.totalTimeSpent ?? 540,
-    currentRank: data?.stats?.currentRank ?? 42,
+    currentRank: data?.stats?.currentRank ?? '#1',
     percentile: data?.stats?.percentile ?? 3,
     streakDays: data?.stats?.streakDays ?? 12,
   };
@@ -61,12 +60,6 @@ const StudentDashboard = () => {
     { date: 'Week 7', score: 82 },
   ];
 
-  const skills = data?.topicAnalysis?.length > 0 ? data.topicAnalysis : [
-    { name: 'SQL Databases', score: 85, totalQuestions: 100, correctAnswers: 85 },
-    { name: 'Python Core', score: 72, totalQuestions: 100, correctAnswers: 72 },
-    { name: 'Data Structures', score: 90, totalQuestions: 100, correctAnswers: 90 },
-    { name: 'React.js', score: 65, totalQuestions: 100, correctAnswers: 65 },
-  ];
 
   const exams = data?.upcomingExams || [];
 
@@ -140,16 +133,15 @@ const StudentDashboard = () => {
         <div className="lg:col-span-8 space-y-8">
           <Stats stats={stats} />
           <PerformanceChart data={performance} />
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
             <UpcomingExams exams={exams} />
             <RecentActivity activities={activities} />
           </div>
-          <SkillBreakdown skills={skills} />
         </div>
 
         {/* RIGHT SIDE (4 SPAN) */}
         <div className="lg:col-span-4 space-y-8">
-          <ProgressCard userName={user?.name} topic={skills[0]?.name} />
+          <ProgressCard userName={user?.name} topic={data?.topTopic || 'Software Engineering'} />
           <RankInsights rank={stats.currentRank} percentile={stats.percentile} />
           <QuickActions />
           <Achievements badges={badges} />

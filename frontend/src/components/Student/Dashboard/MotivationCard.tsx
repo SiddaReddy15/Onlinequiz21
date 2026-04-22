@@ -18,17 +18,17 @@ export const MotivationCard = ({ userName, topic = 'Software Engineering' }: Mot
           <Sparkles size={24} className="text-sky-400" />
         </div>
         
-        <h3 className="text-2xl font-black leading-tight tracking-tight mb-4">
+        <h3 className="text-xl font-black leading-tight tracking-tight mb-3">
           Success is a journey, not a destination.
         </h3>
         
-        <p className="text-slate-300 text-sm font-medium leading-relaxed mb-8">
+        <p className="text-slate-300 text-xs font-medium leading-relaxed mb-6">
           Excellent work, <span className="text-white font-bold">{userName}</span>! Your recent focus on <span className="text-sky-400 font-bold">{topic}</span> is paying off. You're outperforming 85% of peers this week.
         </p>
 
-        <button className="mt-auto group flex items-center gap-2 text-white font-black text-[10px] uppercase tracking-[0.2em] hover:gap-3 transition-all">
+        <button className="mt-auto group flex items-center gap-2 text-white font-black text-[9px] uppercase tracking-[0.2em] hover:gap-3 transition-all">
           View Detailed Insights
-          <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform text-sky-400" />
+          <ArrowUpRight size={12} className="group-hover:rotate-45 transition-transform text-sky-400" />
         </button>
       </div>
 
