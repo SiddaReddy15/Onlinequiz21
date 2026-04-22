@@ -24,6 +24,7 @@ import {
 import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 import Editor from '@monaco-editor/react';
+import { LanguageSelector, LANGUAGES, type Language } from '../../components/Student/LanguageSelector';
 
 const TakeExam = () => {
   const { id: examId } = useParams();
@@ -41,7 +42,7 @@ const TakeExam = () => {
   const [examStarted, setExamStarted] = useState(false);
   const [isRunningCode, setIsRunningCode] = useState(false);
   const [codeOutput, setCodeOutput] = useState<{success: boolean, output: string, executionTime?: string, error?: string} | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState('javascript');
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('javascript');
   const [isInitializing, setIsInitializing] = useState(true);
 
   const timerRef = useRef<any>(null);
@@ -201,6 +202,17 @@ const TakeExam = () => {
       toast.error('Failed to run code');
     } finally {
       setIsRunningCode(false);
+    }
+  };
+
+  const handleLanguageChange = (lang: Language) => {
+    setSelectedLanguage(lang);
+    const currentQ = exam.questions[currentQIndex];
+    
+    // Load template if editor is empty or just has whitespace
+    if (!answers[currentQ.id] || answers[currentQ.id].trim() === '') {
+      const template = LANGUAGES.find(l => l.id === lang)?.template || '';
+      updateAnswer(currentQ.id, template);
     }
   };
 
@@ -440,16 +452,10 @@ const TakeExam = () => {
                {/* Editor Header */}
                <div className="h-10 bg-[#161b22] border-b border-[#30363d] flex items-center justify-between px-4 shrink-0">
                   <div className="flex items-center gap-4">
-                     <select 
-                       value={selectedLanguage}
-                       onChange={(e) => setSelectedLanguage(e.target.value)}
-                       className="bg-transparent text-xs font-bold text-slate-400 outline-none hover:text-white cursor-pointer"
-                     >
-                       <option value="javascript">JavaScript</option>
-                       <option value="python">Python</option>
-                       <option value="java">Java</option>
-                       <option value="cpp">C++</option>
-                     </select>
+                     <LanguageSelector 
+                       selected={selectedLanguage}
+                       onSelect={handleLanguageChange}
+                     />
                   </div>
                   <div className="flex items-center gap-3">
                      <button className="p-1 text-slate-400 hover:text-white"><Settings size={14} /></button>
