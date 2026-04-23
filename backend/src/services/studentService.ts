@@ -271,16 +271,16 @@ export const studentService = {
       } else if (q.type === 'Coding') {
         // Real code execution grading
         try {
-          const parsed = JSON.parse(studentValue);
-          const code = parsed.code || studentValue;
-          const lang = parsed.language || 'python';
+          const parsed = studentValue ? JSON.parse(studentValue) : {};
+          const code = (typeof parsed === 'object' && parsed !== null) ? (parsed.code || studentValue) : studentValue;
+          const lang = (typeof parsed === 'object' && parsed !== null) ? (parsed.language || 'python') : 'python';
           
-          const result = await this.runCode(code, lang);
+          const result = await (this as any).runCode(code, lang) as any;
           
-          if (result.success) {
+          if (result && result.success) {
             // Check if ANY of the correct answers (expected outputs) are present in the actual output
             isCorrect = correctOnes.some((expected: string) => 
-              result.output.trim().toLowerCase().includes(expected.trim().toLowerCase())
+              result.output?.trim().toLowerCase().includes(expected.trim().toLowerCase())
             );
           } else {
             isCorrect = false;
