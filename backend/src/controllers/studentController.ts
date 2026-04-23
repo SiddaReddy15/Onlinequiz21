@@ -52,8 +52,8 @@ export const studentController = {
 
   async runCode(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { code, language } = req.body;
-      const result = await studentService.runCode(code, language);
+      const { code, language, input } = req.body;
+      const result = await studentService.runCode(code, language, input);
       res.status(200).json(result);
     } catch (error) {
       next(error);

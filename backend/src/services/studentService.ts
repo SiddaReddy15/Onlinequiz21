@@ -4,6 +4,13 @@ import { eq, and, sql, lt, gt, desc, asc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { AppError } from '../utils/errorHandler';
 import { format } from 'date-fns';
+import { exec, spawn } from 'child_process';
+import { writeFileSync, unlinkSync, mkdirSync, rmSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 export const studentService = {
   async getDashboardStats(studentId: string) {
@@ -173,9 +180,24 @@ export const studentService = {
       if (existingAttempt.status === 'submitted') {
         throw new AppError('Exam already submitted', 400);
       }
+      const savedAnswers = await db.select().from(answers).where(eq(answers.attemptId, existingAttempt.id));
+      const formattedAnswers: Record<string, any> = {};
+      savedAnswers.forEach(a => {
+        try {
+          const parsed = JSON.parse(a.content!);
+          // If it's a coding answer, we only want the code for the local state
+          formattedAnswers[a.questionId!] = (typeof parsed === 'object' && parsed !== null && 'code' in parsed) 
+            ? parsed.code 
+            : parsed;
+        } catch (e) {
+          formattedAnswers[a.questionId!] = a.content;
+        }
+      });
+
       return { 
         attemptId: existingAttempt.id, 
         startTime: existingAttempt.startTime,
+        answers: formattedAnswers,
         exam: {
           ...exam,
           questions: formattedQuestions
@@ -247,8 +269,26 @@ export const studentService = {
       } else if (q.type === 'Short') {
         isCorrect = correctOnes.some((c: string) => c.toLowerCase() === studentValue?.toLowerCase().trim());
       } else if (q.type === 'Coding') {
-        // Basic check for coding
-        isCorrect = correctOnes.some((c: string) => studentValue?.includes(c.trim()));
+        // Real code execution grading
+        try {
+          const parsed = JSON.parse(studentValue);
+          const code = parsed.code || studentValue;
+          const lang = parsed.language || 'python';
+          
+          const result = await this.runCode(code, lang);
+          
+          if (result.success) {
+            // Check if ANY of the correct answers (expected outputs) are present in the actual output
+            isCorrect = correctOnes.some((expected: string) => 
+              result.output.trim().toLowerCase().includes(expected.trim().toLowerCase())
+            );
+          } else {
+            isCorrect = false;
+          }
+        } catch (e) {
+          // Fallback to basic string check if JSON parsing fails (backwards compatibility)
+          isCorrect = correctOnes.some((c: string) => studentValue?.includes(c.trim()));
+        }
       }
 
       if (isCorrect) {
@@ -394,26 +434,148 @@ export const studentService = {
     return formattedHistory;
   },
 
-  async runCode(code: string, language: string) {
-    // Mock code execution
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate delay
+  async runCode(code: string, language: string, input: string = '') {
+    const startTime = Date.now();
+    const executionId = `exec_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const workDir = join(tmpdir(), executionId);
+    
+    let fileName = 'solution';
+    let fileExt = '';
+    let command = '';
+    let args: string[] = [];
+    let isCompiled = false;
+    let compileCommand = '';
+    let compileArgs: string[] = [];
 
-    const isError = Math.random() > 0.85;
-    const executionTime = (Math.random() * 0.5 + 0.1).toFixed(3);
+    try {
+      mkdirSync(workDir, { recursive: true });
 
-    if (isError) {
+      switch (language.trim().toLowerCase()) {
+        case 'python':
+          fileExt = '.py';
+          command = 'python';
+          args = ['-u']; // Unbuffered output
+          break;
+        case 'javascript':
+          fileExt = '.js';
+          command = 'node';
+          break;
+        case 'java':
+          fileExt = '.java';
+          const classNameMatch = code.match(/public\s+class\s+(\w+)/);
+          fileName = classNameMatch ? classNameMatch[1] : 'Solution';
+          compileCommand = 'javac';
+          compileArgs = [fileName + '.java'];
+          command = 'java';
+          args = [fileName];
+          isCompiled = true;
+          break;
+        default:
+          return {
+            success: false,
+            error: `Execution environment for ${language} is not yet supported.`,
+            output: '',
+            executionTime: '0.000'
+          };
+      }
+
+      const filePath = join(workDir, fileName + fileExt);
+      writeFileSync(filePath, code);
+
+      // Compilation step (for Java)
+      if (isCompiled) {
+        try {
+          await new Promise((resolve, reject) => {
+            const compileProcess = spawn(compileCommand, compileArgs, { cwd: workDir });
+            let compileError = '';
+            compileProcess.stderr.on('data', (data) => compileError += data.toString());
+            compileProcess.on('close', (code) => {
+              if (code === 0) resolve(true);
+              else reject(new Error(compileError || `Compilation failed with code ${code}`));
+            });
+            // 10s timeout for compilation
+            setTimeout(() => {
+              compileProcess.kill();
+              reject(new Error('Compilation timed out (10s)'));
+            }, 10000);
+          });
+        } catch (err: any) {
+          return {
+            success: false,
+            error: err.message,
+            output: '',
+            executionTime: '0.000'
+          };
+        }
+      }
+
+      // Execution step
+      return new Promise((resolve) => {
+        const fullArgs = isCompiled ? args : [...args, filePath];
+        const process = spawn(command, fullArgs, { cwd: workDir });
+        
+        let output = '';
+        let errorOutput = '';
+
+        if (input) {
+          process.stdin.write(input);
+          process.stdin.end();
+        }
+
+        const timeout = setTimeout(() => {
+          process.kill();
+          resolve({
+            success: false,
+            error: 'Execution timed out (5s)',
+            output: output,
+            executionTime: '5.000'
+          });
+        }, 5000);
+
+        process.stdout.on('data', (data) => output += data.toString());
+        process.stderr.on('data', (data) => errorOutput += data.toString());
+
+        process.on('close', (code) => {
+          clearTimeout(timeout);
+          const executionTime = ((Date.now() - startTime) / 1000).toFixed(3);
+          
+          if (code === 0) {
+            resolve({ success: true, output, executionTime });
+          } else {
+            // Clean up error message (remove file paths)
+            const cleanError = errorOutput.replace(new RegExp(workDir.replace(/\\/g, '\\\\'), 'g'), 'solution');
+            resolve({
+              success: false,
+              error: cleanError || 'Execution failed with exit code ' + code,
+              output: output,
+              executionTime
+            });
+          }
+        });
+
+        process.on('error', (err) => {
+          clearTimeout(timeout);
+          resolve({
+            success: false,
+            error: `Failed to start execution: ${err.message}`,
+            output: '',
+            executionTime: '0.000'
+          });
+        });
+      });
+
+    } catch (err: any) {
       return {
         success: false,
-        error: `SyntaxError: Unexpected token in ${language} execution environment`,
+        error: `Internal server error: ${err.message}`,
         output: '',
-        executionTime
+        executionTime: '0.000'
       };
+    } finally {
+      // Clean up async to not block
+      setTimeout(() => {
+        try { rmSync(workDir, { recursive: true, force: true }); } catch (e) {}
+      }, 1000);
     }
-
-    return {
-      success: true,
-      output: `[${language.toUpperCase()}] Execution successful!\nOutput:\nHello, World! Processed result for input data.\nMemory used: 24MB`,
-      executionTime
-    };
   }
 };

@@ -42,6 +42,8 @@ const TakeExam = () => {
   const [examStarted, setExamStarted] = useState(false);
   const [isRunningCode, setIsRunningCode] = useState(false);
   const [codeOutput, setCodeOutput] = useState<{success: boolean, output: string, executionTime?: string, error?: string} | null>(null);
+  const [testInput, setTestInput] = useState<string>('');
+  const [activeConsoleTab, setActiveConsoleTab] = useState<'output' | 'input'>('output');
   const [selectedLanguage, setSelectedLanguage] = useState<Language>('javascript');
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -65,6 +67,11 @@ const TakeExam = () => {
             if (attemptData.attemptId) {
               setExam(attemptData.exam);
               setAttemptId(attemptData.attemptId);
+              
+              // Recover answers
+              if (attemptData.answers) {
+                setAnswers(attemptData.answers);
+              }
               
               // Recover start time and timer
               const serverStartTime = new Date(attemptData.startTime).getTime();
@@ -119,6 +126,8 @@ const TakeExam = () => {
       setAttemptId(data.attemptId);
       setExamStarted(true);
       
+      if (data.answers) setAnswers(data.answers);
+
       const serverStartTime = new Date(data.startTime).getTime();
       const durationMs = data.exam.duration * 60 * 1000;
       const endTime = serverStartTime + durationMs;
@@ -147,8 +156,15 @@ const TakeExam = () => {
   };
 
   const updateAnswer = (qId: string, content: any) => {
+    const currentQ = exam.questions.find((q: any) => q.id === qId);
+    
+    // For coding questions, we want to store the code AND the language
+    const payload = currentQ?.type === 'Coding' 
+      ? { code: content, language: selectedLanguage }
+      : content;
+
     setAnswers(prev => ({ ...prev, [qId]: content }));
-    saveAnswerToDB(qId, content);
+    saveAnswerToDB(qId, payload);
   };
 
   const handleSubmit = async () => {
@@ -185,10 +201,12 @@ const TakeExam = () => {
 
     setIsRunningCode(true);
     setCodeOutput(null);
+    setActiveConsoleTab('output');
     try {
       const { data } = await api.post('/student/attempt/run-code', { 
         code, 
-        language: selectedLanguage 
+        language: selectedLanguage,
+        input: testInput
       });
       setCodeOutput(data);
     } catch (error) {
@@ -473,9 +491,27 @@ const TakeExam = () => {
                {/* Console/Output Area */}
                <div className="h-1/3 bg-[#161b22] border-t border-[#30363d] flex flex-col shrink-0">
                   <div className="h-10 border-b border-[#30363d] flex items-center justify-between px-4">
-                     <div className="flex items-center gap-2">
-                        <Terminal size={14} className="text-sky-500" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Console Output</span>
+                     <div className="flex items-center gap-6 h-full">
+                        <button 
+                           onClick={() => setActiveConsoleTab('output')}
+                           className={clsx(
+                              "h-full px-2 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 border-b-2 transition-all",
+                              activeConsoleTab === 'output' ? "border-sky-500 text-sky-500" : "border-transparent text-slate-500 hover:text-slate-300"
+                           )}
+                        >
+                           <Terminal size={14} />
+                           Console Output
+                        </button>
+                        <button 
+                           onClick={() => setActiveConsoleTab('input')}
+                           className={clsx(
+                              "h-full px-2 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 border-b-2 transition-all",
+                              activeConsoleTab === 'input' ? "border-sky-500 text-sky-500" : "border-transparent text-slate-500 hover:text-slate-300"
+                           )}
+                        >
+                           <Settings size={14} />
+                           Test Input
+                        </button>
                      </div>
                      <button 
                         onClick={runCode}
@@ -487,28 +523,39 @@ const TakeExam = () => {
                      </button>
                   </div>
                   <div className="flex-1 p-4 font-mono text-sm overflow-y-auto">
-                     {isRunningCode ? (
-                        <div className="flex items-center gap-2 text-slate-500">
-                           <Loader2 className="animate-spin" size={14} />
-                           <span>Compiling and executing...</span>
-                        </div>
-                     ) : codeOutput ? (
-                        <div className="space-y-2">
-                           <div className="flex items-center gap-4 text-[10px] font-bold">
-                              <span className={codeOutput.success ? "text-emerald-500" : "text-rose-500"}>
-                                 {codeOutput.success ? 'SUCCESS' : 'RUNTIME ERROR'}
-                              </span>
-                              <span className="text-slate-500">EXEC TIME: {codeOutput.executionTime}s</span>
-                           </div>
-                           <pre className={clsx(
-                             "whitespace-pre-wrap",
-                             codeOutput.success ? "text-slate-300" : "text-rose-400"
-                           )}>
-                              {codeOutput.success ? codeOutput.output : codeOutput.error}
-                           </pre>
-                        </div>
+                     {activeConsoleTab === 'input' ? (
+                        <textarea
+                           className="w-full h-full bg-transparent border-none outline-none resize-none text-slate-300 placeholder:text-slate-600 custom-scrollbar"
+                           placeholder="Enter your test input here (stdin)..."
+                           value={testInput}
+                           onChange={(e) => setTestInput(e.target.value)}
+                        />
                      ) : (
-                        <span className="text-slate-600 italic">Click "Run Code" to see the output here...</span>
+                        <>
+                           {isRunningCode ? (
+                              <div className="flex items-center gap-2 text-slate-500">
+                                 <Loader2 className="animate-spin" size={14} />
+                                 <span>Compiling and executing...</span>
+                              </div>
+                           ) : codeOutput ? (
+                              <div className="space-y-2">
+                                 <div className="flex items-center gap-4 text-[10px] font-bold">
+                                    <span className={codeOutput.success ? "text-emerald-500" : "text-rose-500"}>
+                                       {codeOutput.success ? 'SUCCESS' : 'RUNTIME ERROR'}
+                                    </span>
+                                    <span className="text-slate-500">EXEC TIME: {codeOutput.executionTime}s</span>
+                                 </div>
+                                 <pre className={clsx(
+                                   "whitespace-pre-wrap",
+                                   codeOutput.success ? "text-slate-300" : "text-rose-400"
+                                 )}>
+                                    {codeOutput.success ? codeOutput.output : codeOutput.error}
+                                 </pre>
+                              </div>
+                           ) : (
+                              <span className="text-slate-600 italic">Click "Run Code" to see the output here...</span>
+                           )}
+                        </>
                      )}
                   </div>
                </div>
